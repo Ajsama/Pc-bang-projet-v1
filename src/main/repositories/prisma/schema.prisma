@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Abonnement {
+  id_abonnement Int      @id @default(autoincrement())
+  type          String?  @db.VarChar(50)
+  prix          Decimal? @db.Decimal(8, 2)
+  duree         Int?
+  Client        Client[]
+}
+
+model Client {
+  id_client     Int          @id @default(autoincrement())
+  nom           String?      @db.VarChar(100)
+  prenom        String?      @db.VarChar(100)
+  email         String?      @db.VarChar(120)
+  telephone     String?      @db.VarChar(20)
+  id_abonnement Int?
+  Abonnement    Abonnement?  @relation(fields: [id_abonnement], references: [id_abonnement], onDelete: NoAction, onUpdate: NoAction, map: "Client_ibfk_1")
+  Reservation   Reservation[]
+
+  @@index([id_abonnement], map: "id_abonnement")
+}
+
+model Poste {
+  id_poste     Int           @id @default(autoincrement())
+  numero_poste String?       @db.VarChar(20)
+  statut       String?       @db.VarChar(50)
+  type         String?       @db.VarChar(50)
+  Reservation  Reservation[]
+}
+
+model Article {
+  id_article     Int              @id @default(autoincrement())
+  nom_article    String?          @db.VarChar(100)
+  description    String?          @db.Text
+  prix           Decimal?         @db.Decimal(8, 2)
+  categorie      String?          @db.VarChar(50)
+  Ligne_commande Ligne_commande[]
+}
+
+model Reservation {
+  id_reservation Int        @id @default(autoincrement())
+  id_client      Int?
+  id_poste       Int?
+  date_debut     DateTime?  @db.DateTime(0)
+  duree          Int?
+  statut         String?    @db.VarChar(30)
+  Client         Client?    @relation(fields: [id_client], references: [id_client], onDelete: NoAction, onUpdate: NoAction, map: "Reservation_ibfk_1")
+  Poste          Poste?     @relation(fields: [id_poste], references: [id_poste], onDelete: NoAction, onUpdate: NoAction, map: "Reservation_ibfk_2")
+  Commande       Commande[]
+  Paiement       Paiement[]
+
+  @@index([id_client], map: "id_client")
+  @@index([id_poste], map: "id_poste")
+}
+
+model Paiement {
+  id_paiement    Int          @id @default(autoincrement())
+  id_reservation Int?
+  montant        Decimal?     @db.Decimal(8, 2)
+  mode_paiement  String?      @db.VarChar(30)
+  date_paiement  DateTime?    @db.DateTime(0)
+  Reservation    Reservation? @relation(fields: [id_reservation], references: [id_reservation], onDelete: NoAction, onUpdate: NoAction, map: "Paiement_ibfk_1")
+
+  @@index([id_reservation], map: "id_reservation")
+}
+
+model Commande {
+  id_commande    Int              @id @default(autoincrement())
+  id_reservation Int?
+  date_commande  DateTime?        @db.DateTime(0)
+  statut         String?          @db.VarChar(30)
+  total          Decimal?         @db.Decimal(8, 2)
+  Reservation    Reservation?     @relation(fields: [id_reservation], references: [id_reservation], onDelete: NoAction, onUpdate: NoAction, map: "Commande_ibfk_1")
+  Ligne_commande Ligne_commande[]
+
+  @@index([id_reservation], map: "id_reservation")
+}
+
+model Ligne_commande {
+  id_ligne      Int       @id @default(autoincrement())
+  id_commande   Int?
+  id_article    Int?
+  quantite      Int?
+  prix_unitaire Decimal?  @db.Decimal(8, 2)
+  Commande      Commande? @relation(fields: [id_commande], references: [id_commande], onDelete: NoAction, onUpdate: NoAction, map: "Ligne_commande_ibfk_1")
+  Article       Article?  @relation(fields: [id_article], references: [id_article], onDelete: NoAction, onUpdate: NoAction, map: "Ligne_commande_ibfk_2")
+
+  @@index([id_article], map: "id_article")
+  @@index([id_commande], map: "id_commande")
+}
