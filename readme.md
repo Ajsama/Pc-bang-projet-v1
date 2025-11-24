@@ -35,7 +35,18 @@ npx prisma generate --schema ./src/main/repositories/prisma/schema.prisma
 npx prisma db push --schema ./src/main/repositories/prisma/schema.prisma
 ```
 
-5. Lancer
+5. (Optionnel) Charger les données de test
+Pour avoir des données de démonstration dans l'application :
+```bash
+mysql -u root -p pcbang < test.sql
+```
+Cela créera :
+- 3 types d'abonnements (Basique, Premium, VIP)
+- 4 clients de test
+- 5 postes (P1 à P5)
+- 5 réservations d'exemple
+
+6. Lancer
 ```bash
 npm start
 ```
@@ -44,7 +55,6 @@ npm start
 
 ```bash
 npm start                  # Lancer l'application
-npm run make              # Créer un installeur
 npx prisma studio --schema ./src/main/repositories/prisma/schema.prisma  # Interface BD
 ```
 
